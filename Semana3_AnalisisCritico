@@ -1,0 +1,7 @@
+Se uso IA para validar la arquitectura de la CNN.
+
+Analisis:
+- Se decidió mantener una arquitectura  de dos capas para que se entrene de una forma más rapida.
+- Se implemento dropout, ayudando a mejorar la generalización.
+- No se aumentó mucho la profundidad de la red, ya que no se necesita algo tan complejo para el primer entrenamiento.
+- El data augmentation se aplicó al conjunto que se uso para el entrenamiento.

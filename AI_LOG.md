@@ -26,4 +26,15 @@ Consulté principalmente sobre cómo estructurar la red (capas convolucionales, 
 
 También pedí apoyo para entender mejor el entrenamiento inicial, como el uso de optimizadores y la función de pérdida.
 
-Finalmente, utilicé IA para revisar la arquitectura y obtener sugerencias simples de mejora, como agregar dropout y usar data augmentation. Después analicé estas sugerencias y decidí cuáles aplicar.
+Finalmente, utilicé IA para revisar la arquitectura y obtener sugerencias simples de mejora, como agregar dropout y usar data augmentation. Después analicé estas sugerencias y decidí cuáles aplicar
+
+*25/3/2026*
+
+Prompt utilizado:
+Como evaluar mi modelo de CIFAR-10 con matriz de confusión y precision, recall y F1?
+
+Utilicé IA para resolver dudas pequeñas sobre cómo evaluar el modelo.
+
+Consulté cómo obtener la matriz de confusión y métricas como precision, recall y F1-score.
+
+También pedí ayuda para entender de forma general cómo interpretar estos resultados y analizar errores.

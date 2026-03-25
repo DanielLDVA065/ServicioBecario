@@ -144,3 +144,67 @@ for epoch in range(epochs):
 
 test_acc = evaluate(model, test_loader)
 print(f"Test Accuracy: {test_acc:.4f}")
+
+from sklearn.metrics import confusion_matrix, classification_report
+import numpy as np
+
+# Obtener predicciones del modelo
+def get_predictions(model, loader):
+    model.eval()
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for batch in loader:
+            images = batch["img"].to(device)
+            labels = batch["label"].to(device)
+
+            outputs = model(images)
+            _, preds = torch.max(outputs, 1)
+
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    return np.array(all_preds), np.array(all_labels)
+
+# Generar predicciones
+y_pred, y_true = get_predictions(model, test_loader)
+
+# Matriz de confusión
+cm = confusion_matrix(y_true, y_pred)
+print("\nMatriz de Confusión:")
+print(cm)
+
+# Métricas
+print("\nReporte de Clasificación:")
+print(classification_report(y_true, y_pred))
+
+# Análisis de errores
+import matplotlib.pyplot as plt
+
+def show_errors(model, loader, num_images=6):
+    model.eval()
+    shown = 0
+
+    with torch.no_grad():
+        for batch in loader:
+            images = batch["img"].to(device)
+            labels = batch["label"].to(device)
+
+            outputs = model(images)
+            _, preds = torch.max(outputs, 1)
+
+            for i in range(len(images)):
+                if preds[i] != labels[i]:
+                    img = images[i].cpu().permute(1,2,0)
+
+                    plt.imshow(img)
+                    plt.title(f"Real: {labels[i].item()} | Pred: {preds[i].item()}")
+                    plt.axis("off")
+                    plt.show()
+
+                    shown += 1
+                    if shown >= num_images:
+                        return
+
+show_errors(model, test_loader)

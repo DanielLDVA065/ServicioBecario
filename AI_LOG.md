@@ -38,3 +38,16 @@ Utilicé IA para resolver dudas pequeñas sobre cómo evaluar el modelo.
 Consulté cómo obtener la matriz de confusión y métricas como precision, recall y F1-score.
 
 También pedí ayuda para entender de forma general cómo interpretar estos resultados y analizar errores.
+
+*7/4/2026*
+
+Prompt utilizado:
+Como uso transfer learning con ResNet para CIFAR-10 y como lo comparo en mi modelo?
+
+Utilice IA para ver como integrar un modelo preentrenado con Transfer Learning.
+
+Consulte como adaptar un modelo ResNet para CIFAR-10.
+
+Pedi ayuda en algunas sugerencias de mejora y fine-tuning.
+
+Con la IA confirme que el proceso esta bien implementado.

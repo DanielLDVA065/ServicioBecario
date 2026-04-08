@@ -1,210 +1,176 @@
 from datasets import load_dataset
 import numpy as np
-from torchvision import transforms
+from torchvision import transforms, models
 import torch
 from torch import tensor
 import torch.nn as nn
+from PIL import Image
+from torch.utils.data import DataLoader
 
+# Cargar dataset
 dataset = load_dataset("uoft-cs/cifar10")
 
-# Normalización de las imágenes
-def normalize(example):
-    image = np.array(example["img"]) / 255.0
-    example["img"] = image
-    return example
-dataset = dataset.map(normalize)
-
-# Dividir el conjunto de entrenamiento en entrenamiento y validación
+# Dividir dataset
 train_val = dataset["train"].train_test_split(test_size=0.2)
 train_dataset = train_val["train"]
 val_dataset = train_val["test"]
 test_dataset = dataset["test"]
 
-# Calcular los pesos para cada clase en función de su frecuencia
+# Pesos
 weights = tensor([1.0,1.0,1.2,1.5,1.1,1.4,1.0,1.2,1.0,1.1])
 criterion = nn.CrossEntropyLoss(weight=weights)
 
-# Definir las transformaciones para el entrenamiento y la prueba
+# Transforms (para ResNet)
 train_transforms = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop(32, padding=4),
+    transforms.RandomCrop(224, padding=4),
     transforms.RandomRotation(15),
     transforms.ToTensor(),
     transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
 ])
 
-# Para el conjunto de prueba, solo normalizamos sin aumentos de datos
 test_transforms = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
 ])
 
+print(dataset["train"].features["label"].names)
 
-#Comprobacion
-print(dataset["train"].features["label"].names) # Imprime las clases del dataset
-
-from torch.utils.data import DataLoader
-
-# Convertir dataset a formato PyTorch
-def transform_dataset(example, transform):
-    image = example["img"]
-    image = transform(image)
-    example["img"] = image
+# USAR with_transform (NO map)
+def transform_example(example, transform):
+    images = example["img"]
+    
+    processed_images = []
+    
+    for img in images:
+        img = np.array(img, dtype=np.uint8)
+        
+        # FIX CLAVE: quitar dimensiones extra
+        if img.ndim == 4:
+            img = img.squeeze()
+        
+        img = Image.fromarray(img)
+        img = transform(img)
+        processed_images.append(img)
+    
+    example["img"] = processed_images
     return example
 
-train_dataset = train_dataset.map(lambda x: transform_dataset(x, train_transforms))
-val_dataset = val_dataset.map(lambda x: transform_dataset(x, test_transforms))
-test_dataset = test_dataset.map(lambda x: transform_dataset(x, test_transforms))
-
-train_dataset.set_format(type="torch", columns=["img", "label"])
-val_dataset.set_format(type="torch", columns=["img", "label"])
-test_dataset.set_format(type="torch", columns=["img", "label"])
+train_dataset = train_dataset.with_transform(lambda x: transform_example(x, train_transforms))
+val_dataset = val_dataset.with_transform(lambda x: transform_example(x, test_transforms))
+test_dataset = test_dataset.with_transform(lambda x: transform_example(x, test_transforms))
 
 # DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=64)
 test_loader = DataLoader(test_dataset, batch_size=64)
 
+# CNN
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
-        
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        
+        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
         self.pool = nn.MaxPool2d(2,2)
         self.relu = nn.ReLU()
-        
-        self.fc1 = nn.Linear(64 * 8 * 8, 128)
+        self.fc1 = nn.Linear(64 * 56 * 56, 128)
         self.fc2 = nn.Linear(128, 10)
-        
         self.dropout = nn.Dropout(0.25)
 
     def forward(self, x):
-        x = self.pool(self.relu(self.conv1(x)))  # 32x16x16
-        x = self.pool(self.relu(self.conv2(x)))  # 64x8x8
-        
+        x = self.pool(self.relu(self.conv1(x)))
+        x = self.pool(self.relu(self.conv2(x)))
         x = x.view(x.size(0), -1)
-        
         x = self.dropout(self.relu(self.fc1(x)))
         x = self.fc2(x)
-        
         return x
-    
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = SimpleCNN().to(device)
-
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 def train(model, loader):
     model.train()
     total_loss = 0
-    
     for batch in loader:
         images = batch["img"].to(device)
         labels = batch["label"].to(device)
-        
+
         optimizer.zero_grad()
         outputs = model(images)
         loss = criterion(outputs, labels)
-        
+
         loss.backward()
         optimizer.step()
-        
         total_loss += loss.item()
-    
+
     return total_loss / len(loader)
 
 def evaluate(model, loader):
     model.eval()
     correct = 0
     total = 0
-    
     with torch.no_grad():
         for batch in loader:
             images = batch["img"].to(device)
             labels = batch["label"].to(device)
-            
+
             outputs = model(images)
-            _, predicted = torch.max(outputs, 1)
-            
+            _, preds = torch.max(outputs, 1)
+
             total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    
+            correct += (preds == labels).sum().item()
+
     return correct / total
 
-epochs = 5
-
-for epoch in range(epochs):
-    train_loss = train(model, train_loader)
+# Entrenamiento CNN
+for epoch in range(5):
+    loss = train(model, train_loader)
     val_acc = evaluate(model, val_loader)
-    
-    print(f"Epoch {epoch+1}: Loss={train_loss:.4f}, Val Acc={val_acc:.4f}")
+    print(f"Epoch {epoch+1}: Loss={loss:.4f}, Val Acc={val_acc:.4f}")
 
 test_acc = evaluate(model, test_loader)
-print(f"Test Accuracy: {test_acc:.4f}")
+print(f"Test Accuracy CNN: {test_acc:.4f}")
 
-from sklearn.metrics import confusion_matrix, classification_report
-import numpy as np
+# Transfer Learning
+model_tl = models.resnet18(weights="IMAGENET1K_V1")
 
-# Obtener predicciones del modelo
-def get_predictions(model, loader):
-    model.eval()
-    all_preds = []
-    all_labels = []
+for param in model_tl.parameters():
+    param.requires_grad = False
 
-    with torch.no_grad():
-        for batch in loader:
-            images = batch["img"].to(device)
-            labels = batch["label"].to(device)
+model_tl.fc = nn.Linear(model_tl.fc.in_features, 10)
+model_tl = model_tl.to(device)
 
-            outputs = model(images)
-            _, preds = torch.max(outputs, 1)
+optimizer_tl = torch.optim.Adam(model_tl.fc.parameters(), lr=0.001)
 
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(labels.cpu().numpy())
+def train_tl(model, loader):
+    model.train()
+    total_loss = 0
+    for batch in loader:
+        images = batch["img"].to(device)
+        labels = batch["label"].to(device)
 
-    return np.array(all_preds), np.array(all_labels)
+        optimizer_tl.zero_grad()
+        outputs = model(images)
+        loss = criterion(outputs, labels)
 
-# Generar predicciones
-y_pred, y_true = get_predictions(model, test_loader)
+        loss.backward()
+        optimizer_tl.step()
+        total_loss += loss.item()
 
-# Matriz de confusión
-cm = confusion_matrix(y_true, y_pred)
-print("\nMatriz de Confusión:")
-print(cm)
+    return total_loss / len(loader)
 
-# Métricas
-print("\nReporte de Clasificación:")
-print(classification_report(y_true, y_pred))
+for epoch in range(5):
+    loss = train_tl(model_tl, train_loader)
+    val_acc = evaluate(model_tl, val_loader)
+    print(f"[TL] Epoch {epoch+1}: Loss={loss:.4f}, Val Acc={val_acc:.4f}")
 
-# Análisis de errores
-import matplotlib.pyplot as plt
+test_acc_tl = evaluate(model_tl, test_loader)
+print(f"Test Accuracy TL: {test_acc_tl:.4f}")
 
-def show_errors(model, loader, num_images=6):
-    model.eval()
-    shown = 0
-
-    with torch.no_grad():
-        for batch in loader:
-            images = batch["img"].to(device)
-            labels = batch["label"].to(device)
-
-            outputs = model(images)
-            _, preds = torch.max(outputs, 1)
-
-            for i in range(len(images)):
-                if preds[i] != labels[i]:
-                    img = images[i].cpu().permute(1,2,0)
-
-                    plt.imshow(img)
-                    plt.title(f"Real: {labels[i].item()} | Pred: {preds[i].item()}")
-                    plt.axis("off")
-                    plt.show()
-
-                    shown += 1
-                    if shown >= num_images:
-                        return
-
-show_errors(model, test_loader)
+print("\nComparación:")
+print(f"CNN: {test_acc:.4f}")
+print(f"Transfer Learning: {test_acc_tl:.4f}")

@@ -51,3 +51,16 @@ Consulte como adaptar un modelo ResNet para CIFAR-10.
 Pedi ayuda en algunas sugerencias de mejora y fine-tuning.
 
 Con la IA confirme que el proceso esta bien implementado.
+
+*13/4/2026*
+
+Prompt utilizado:
+Como mejoro mi modelo CNN y el de transfer learning con hiperparámetros, usando regularización y haciendo fine-tuning?
+
+Ayuda para ajustar hiperparámetros del modelo learning rate y épocas.
+ 
+Consulté sobre regularización básica de dropout y weight decay.
+
+Pedi consejos sobre como mejorar el entrenamiento del modelo preentrenado.
+ 
+Verifiqué con IA si los cambios implementados eran correctos.

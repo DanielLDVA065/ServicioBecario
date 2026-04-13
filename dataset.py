@@ -77,7 +77,7 @@ class SimpleCNN(nn.Module):
         self.relu = nn.ReLU()
         self.fc1 = nn.Linear(64 * 56 * 56, 128)
         self.fc2 = nn.Linear(128, 10)
-        self.dropout = nn.Dropout(0.25)
+        self.dropout = nn.Dropout(0.4)
 
     def forward(self, x):
         x = self.pool(self.relu(self.conv1(x)))
@@ -90,7 +90,8 @@ class SimpleCNN(nn.Module):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = SimpleCNN().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
 
 def train(model, loader):
     model.train()
@@ -127,19 +128,32 @@ def evaluate(model, loader):
     return correct / total
 
 # Entrenamiento CNN
-for epoch in range(5):
+best_val = 0
+
+for epoch in range(10):  # más épocas
     loss = train(model, train_loader)
     val_acc = evaluate(model, val_loader)
+
+    scheduler.step()
+
+    if val_acc > best_val:
+        best_val = val_acc
+        torch.save(model.state_dict(), "best_cnn.pth")
+
     print(f"Epoch {epoch+1}: Loss={loss:.4f}, Val Acc={val_acc:.4f}")
 
-test_acc = evaluate(model, test_loader)
-print(f"Test Accuracy CNN: {test_acc:.4f}")
+# Cargar mejor modelo
+model.load_state_dict(torch.load("best_cnn.pth"))
 
 # Transfer Learning
 model_tl = models.resnet18(weights="IMAGENET1K_V1")
 
 for param in model_tl.parameters():
     param.requires_grad = False
+
+# 🔥 Descongelar últimas capas (MEJORA IMPORTANTE)
+for param in model_tl.layer4.parameters():
+    param.requires_grad = True
 
 model_tl.fc = nn.Linear(model_tl.fc.in_features, 10)
 model_tl = model_tl.to(device)
@@ -174,3 +188,7 @@ print(f"Test Accuracy TL: {test_acc_tl:.4f}")
 print("\nComparación:")
 print(f"CNN: {test_acc:.4f}")
 print(f"Transfer Learning: {test_acc_tl:.4f}")
+
+print("\nRESULTADOS OPTIMIZADOS")
+print(f"CNN Optimizada: {test_acc:.4f}")
+print(f"Transfer Learning Optimizado: {test_acc_tl:.4f}")

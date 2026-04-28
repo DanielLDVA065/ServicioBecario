@@ -64,3 +64,12 @@ Consulté sobre regularización básica de dropout y weight decay.
 Pedi consejos sobre como mejorar el entrenamiento del modelo preentrenado.
  
 Verifiqué con IA si los cambios implementados eran correctos.
+
+*21/4/2026*
+
+Prompt utilizado:
+Ayúdame a redactar un análisis crítico de mi modelo de clasificación CIFAR-10. Ya trabajé con una CNN y transfer learning, pero quiero explicar los errores (falsos positivos y negativos), sesgos y limitaciones
+
+Ayuda para consultar y verificar temas.
+
+Pedi consejos sobre como redactar mi analisis critico.

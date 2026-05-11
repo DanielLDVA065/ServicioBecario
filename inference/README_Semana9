@@ -1,9 +1,0 @@
-# Ejecutar servidor
-
-pip install fastapi uvicorn torch torchvision datasets pillow
-
-python dataset.py
-
-## Endpoint
-
-POST http://127.0.0.1:8000/predict

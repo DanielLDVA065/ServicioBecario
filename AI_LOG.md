@@ -82,3 +82,12 @@ Ayúdame a implementar FastAPI en mi proyecto de clasificación CIFAR-10 usando 
 Ayuda para estructurar la API y conectar el modelo entrenado con FastAPI.
 
 Pedi ayuda para manejo básico de errores y validación de imágenes en el endpoint.
+
+*12/5/2026* 
+
+Prompt utilizado:
+Ayúdame a crear una interfaz web sencilla para mi proyecto CIFAR-10 usando FastAPI. Ya tengo el backend funcionando y quiero conectar una UI para subir imágenes y mostrar predicciones
+
+Ayuda para conectar frontend y backend usando HTML, CSS y FastAPI.
+
+Pedi sugerencias para mejorar la interfaz y validar imágenes antes de enviarlas.

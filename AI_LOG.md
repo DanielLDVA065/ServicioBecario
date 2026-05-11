@@ -73,3 +73,12 @@ Prompt utilizado:
 Ayuda para consultar y verificar temas.
 
 Pedí apoyo para ajustar la función de predicción y validar con una imagen de prueba. También verifiqué cómo organizar la carpeta /inference y guardar correctamente los modelos.
+
+*05/5/2026* 
+
+Prompt utilizado:
+Ayúdame a implementar FastAPI en mi proyecto de clasificación CIFAR-10 usando mi código actual en PyTorch. Necesito crear un endpoint /predict para enviar imágenes y obtener predicciones del modelo
+
+Ayuda para estructurar la API y conectar el modelo entrenado con FastAPI.
+
+Pedi ayuda para manejo básico de errores y validación de imágenes en el endpoint.

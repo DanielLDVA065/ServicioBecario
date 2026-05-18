@@ -91,3 +91,12 @@ Ayúdame a crear una interfaz web sencilla para mi proyecto CIFAR-10 usando Fast
 Ayuda para conectar frontend y backend usando HTML, CSS y FastAPI.
 
 Pedi sugerencias para mejorar la interfaz y validar imágenes antes de enviarlas.
+
+*19/5/2026*
+
+Prompt utilizado:
+Ayúdame a organizar mi repositorio final para un proyecto de clasificación de imágenes con FastAPI y frontend HTML.
+
+Ayuda para estructurar README.md y DEPLOYMENT.md.
+
+Pedí recomendaciones para ordenar carpetas y archivos.

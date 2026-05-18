@@ -132,7 +132,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = SimpleCNN().to(device)
 
 # Cargar modelo guardado
-model.load_state_dict(torch.load("inference/cnn_model.pth", map_location=device))
+model.load_state_dict(torch.load("Backend/cnn_model.pth", map_location=device))
 
 # Modo evaluación
 model.eval()

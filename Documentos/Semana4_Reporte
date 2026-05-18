@@ -1,0 +1,13 @@
+Actualmente se calcula en este model lo siguiente:
+-Matriz de confusión
+-Precisión
+-Recall
+-F1-Score
+Estas medidas sirven para verificar el desempeño del modelo global como en cada clase.
+
+Se pudo ver que el modelo tiene un mejor rendimiento con clases que son más diferenciables de forma visual.
+También, se pudo ver que hay más errores entre clases similares.
+Esto puede decirnos que el modelo todavia tiene limitaciones a la hora de distinguir detalles finos en las imágenes.
+
+El modelo tuvo un rendimiento aceptable como primera aproximación. Aun así, existen zonas de mejora, como aumentar la complejidad de la red o entrenar el modelo por más épocas.
+Las métricas son muy importantes para encontrar áreas de mejora y entender el modelo.

@@ -1,0 +1,8 @@
+*Selección del dataset*
+CIFAR-10:
+https://www.tensorflow.org/datasets/catalog/cifar10?hl=es-419
+
+*Justificación técnica*
+Elegí este tipo de dataset ya que se pueden entrenar modelos sin necesidad de computadoras de alta gama, ya que se usan imágenes pequeñas.
+Además, tiene una organización ya establecida, ya que vienen los datos divididos en entrenamiento y prueba, haciendo más fácil probar el rendimiento del modelo.
+Por último, hay muchos cursos de CNN con este dataset, así se podrá entender cómo funciona el modelo sin complicaciones.

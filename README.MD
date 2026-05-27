@@ -28,7 +28,3 @@ Clases:
 - horse
 - ship
 - truck
-
-Dataset obtenido desde:
-
-https://huggingface.co/datasets/uoft-cs/cifar10
